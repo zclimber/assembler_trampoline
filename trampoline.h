@@ -8,27 +8,28 @@
 #ifndef TRAMPOLINE_H_
 #define TRAMPOLINE_H_
 
-#include <vector>
+#include <algorithm>
+#include <memory>
+#include <mutex>
 #include <string>
 #include <type_traits>
-#include <algorithm>
-#include <mutex>
-#include <memory>
-
-#include <sys/mman.h>
+#include <vector>
 
 class info {
-//public:
+
 	static std::mutex mut;
 	static std::vector<void *> part_256, part_1024;
-private:
+
 	static const int PAGE_SIZE = 4096;
 	static const int PAGES_PER_REQUEST = 4;
+
 	enum asked_mem {
 		nomem, mem256, mem1024, fullmem
 	} mem = nomem;
+
 	void * given_mem = nullptr;
-	unsigned int size;
+	unsigned int size = 0;
+
 protected:
 	info() = default;
 	std::string to_str(int val);
@@ -87,7 +88,7 @@ struct maker;
 
 template<>
 struct maker<> {
-	static void make(info & i) {
+	static void make(info &) {
 	}
 };
 
@@ -134,7 +135,7 @@ public:
 		func = init_func(&t);
 	}
 	trampoline(T && t) {
-		ptr = std::unique_ptr<T>(t);
+		ptr = std::make_unique<T>(std::move(t));
 		func = init_func(ptr.get());
 	}
 	functype to_func() {

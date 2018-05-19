@@ -6,7 +6,9 @@
  */
 
 #include "trampoline.h"
+
 #include <sys/mman.h>
+#include <cstdint>
 
 std::mutex info::mut;
 std::vector<void *> info::part_256, info::part_1024;
